@@ -16,7 +16,7 @@ public class Scanner {
 
     public Optional<Token> nextToken() throws InvalidSymbol {
         Optional<Character> optional = getCurrentChar();
-        while (optional.isPresent() && Character.isSpaceChar(optional.get())) {
+        while (optional.isPresent() && isSpace(optional.get())) {
             optional = nextChar();
         }
         if (optional.isEmpty()) {
@@ -69,6 +69,10 @@ public class Scanner {
                 default -> throw new InvalidSymbol(optional.get());
             }
         }
+    }
+
+    private boolean isSpace(Character c) {
+        return c == ' ' || c == '\t' || c == '\n';
     }
 
     private Token makeIdent(String ident) {

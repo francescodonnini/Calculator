@@ -1,6 +1,5 @@
 package io.francescodonnini.calc;
 
-import io.francescodonnini.calc.exceptions.InvalidFunName;
 import io.francescodonnini.calc.exceptions.InvalidInput;
 import io.francescodonnini.calc.exceptions.MismatchedParenthesis;
 import io.francescodonnini.calc.exceptions.ZeroDivisionError;
@@ -25,26 +24,34 @@ public class Calculator {
             "log", Math::log,
             "log10", Math::log10
     );
-
+    private static final Map<String, Double> CONSTANTS = Map.of(
+            "e", Math.E,
+            "pi", Math.PI
+    );
     private final Scanner scanner;
     private final Deque<Token> output;
     private final Deque<Token> operatorStack;
+    private final Deque<Double> stack;
     
     public Calculator(String source) {
         this.scanner = new Scanner(source);
         output = new ArrayDeque<>();
         operatorStack = new ArrayDeque<>();
-        
+        stack = new ArrayDeque<>();
     }
 
-    public double getResult() throws InvalidSymbol, MismatchedParenthesis, InvalidFunName, InvalidInput, ZeroDivisionError {
+    public double getResult() throws InvalidSymbol, MismatchedParenthesis, InvalidInput, ZeroDivisionError {
         Optional<Token> optional = scanner.nextToken();
         while (optional.isPresent()) {
             Token token = optional.get();
             if (match(token, TokenType.NUM)) {
                 output.add(token);
             } else if (match(token, TokenType.IDENT)) {
-                operatorStack.add(token);
+                if (CONSTANTS.containsKey(token.getText())) {
+                    output.add(token);
+                } else {
+                    operatorStack.add(token);
+                }
             } else if (match(token, TokenType.LEFT_PAREN)) {
                 operatorStack.add(token);
             } else if (match(token, TokenType.RIGHT_PAREN)) {
@@ -91,14 +98,13 @@ public class Calculator {
         }
     }
 
-    private double evaluate(Deque<Token> outputStack) throws InvalidFunName, ZeroDivisionError, InvalidInput {
-        Deque<Double> stack = new ArrayDeque<>();
+    private double evaluate(Deque<Token> outputStack) throws ZeroDivisionError, InvalidInput, InvalidSymbol {
         for (Token token : outputStack) {
             if (match(token, TokenType.NUM)) {
                 stack.add(Double.parseDouble(token.getText()));
             } else {
                 switch (token.getTokenType()) {
-                    case IDENT -> stack.add(callFun(token.getText(), stack.pollLast()));
+                    case IDENT -> resolveIdentifier(token.getText());
                     case ADD -> stack.add(stack.pollLast() + stack.pollLast());
                     case DIV -> {
                         double right = stack.pollLast();
@@ -121,11 +127,14 @@ public class Calculator {
         return stack.pollLast();
     }
 
-    private double callFun(String text, double argument) throws InvalidFunName {
-        if (FUNCTIONS.containsKey(text)) {
-            return FUNCTIONS.get(text).apply(argument);
+    private void resolveIdentifier(String text) throws InvalidSymbol {
+        if (CONSTANTS.containsKey(text)) {
+            stack.add(CONSTANTS.get(text));
+        } else if (FUNCTIONS.containsKey(text)){
+            stack.add(FUNCTIONS.get(text).apply(stack.pollLast()));
+        } else {
+            throw new InvalidSymbol(text);
         }
-        throw new InvalidFunName(text);
     }
 
     private boolean isLeftAssociative(Token token) {

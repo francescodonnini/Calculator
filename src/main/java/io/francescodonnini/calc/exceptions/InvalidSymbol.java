@@ -1,13 +1,17 @@
 package io.francescodonnini.calc.exceptions;
 
 public class InvalidSymbol extends Exception {
-    private final char invalidChar;
+    private final String symbol;
 
-    public InvalidSymbol(char invalidChar) {
-        this.invalidChar = invalidChar;
+    public InvalidSymbol(char symbol) {
+        this.symbol = String.valueOf(symbol);
     }
 
-    public char getInvalidChar() {
-        return invalidChar;
+    public InvalidSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
+    public String getSymbol() {
+        return symbol;
     }
 }

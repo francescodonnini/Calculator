@@ -1,6 +1,6 @@
 package io.francescodonnini.calc.scanner;
 
-import io.francescodonnini.calc.Shunting;
+import io.francescodonnini.calc.Calculator;
 import io.francescodonnini.calc.exceptions.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +22,7 @@ class EvaluationTest {
     @Test
     void testEvaluation() throws InvalidFunName, MismatchedParenthesis, InvalidSymbol, InvalidInput, ZeroDivisionError {
         for (String e : testCases.keySet()) {
-            Shunting calculator = new Shunting(e);
+            Calculator calculator = new Calculator(e);
             Assertions.assertEquals(testCases.get(e), calculator.getResult());
         }
     }

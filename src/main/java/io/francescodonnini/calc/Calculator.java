@@ -11,7 +11,7 @@ import io.francescodonnini.calc.token.*;
 import java.util.*;
 import java.util.function.Function;
 
-public class Shunting {
+public class Calculator {
     private static final Map<TokenType, Integer> PRECEDENCE_MAP = Map.of(
             TokenType.ADD, 2,
             TokenType.SUB, 2,
@@ -30,7 +30,7 @@ public class Shunting {
     private final Deque<Token> output;
     private final Deque<Token> operatorStack;
     
-    public Shunting(String source) {
+    public Calculator(String source) {
         this.scanner = new Scanner(source);
         output = new ArrayDeque<>();
         operatorStack = new ArrayDeque<>();
@@ -61,7 +61,11 @@ public class Shunting {
             }
             output.add(token);
         }
-        return evaluate(output);
+        try {
+            return evaluate(output);
+        } catch (NullPointerException ignored) {
+            throw new InvalidInput();
+        }
     }
 
     private void handleOperator(Token operator) {
@@ -87,7 +91,7 @@ public class Shunting {
         }
     }
 
-    double evaluate(Deque<Token> outputStack) throws InvalidFunName, ZeroDivisionError, InvalidInput {
+    private double evaluate(Deque<Token> outputStack) throws InvalidFunName, ZeroDivisionError, InvalidInput {
         Deque<Double> stack = new ArrayDeque<>();
         for (Token token : outputStack) {
             if (match(token, TokenType.NUM)) {

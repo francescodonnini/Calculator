@@ -20,7 +20,7 @@ class EvaluationTest {
     }
 
     @Test
-    void testEvaluation() throws InvalidFunName, MismatchedParenthesis, InvalidSymbol, InvalidInput, ZeroDivisionError {
+    void testEvaluation() throws MismatchedParenthesis, InvalidSymbol, InvalidInput, ZeroDivisionError {
         for (String e : testCases.keySet()) {
             Calculator calculator = new Calculator(e);
             Assertions.assertEquals(testCases.get(e), calculator.getResult());

@@ -23,14 +23,8 @@ public class Scanner {
             return Optional.empty();
         }
         if (Character.isDigit(optional.get())) {
-            StringBuilder s = new StringBuilder();
-            s.append(optional.get());
-            optional = nextChar();
-            while (optional.isPresent() && Character.isDigit(optional.get())) {
-                s.append(optional.get());
-                optional = nextChar();
-            }
-            return Optional.of(makeNumber(s.toString()));
+            StringBuilder s = new StringBuilder().append(optional.get());
+            return parseNumber(s);
         } else if (Character.isAlphabetic(optional.get())) {
             StringBuilder s = new StringBuilder();
             s.append(optional.get());
@@ -69,6 +63,23 @@ public class Scanner {
                 default -> throw new InvalidSymbol(optional.get());
             }
         }
+    }
+
+    private Optional<Token> parseNumber(StringBuilder s) {
+        Optional<Character> optional = nextChar();
+        while (optional.isPresent() && Character.isDigit(optional.get())) {
+            s.append(optional.get());
+            optional = nextChar();
+        }
+        if (optional.isPresent() && optional.get() == '.') {
+            s.append('.');
+            optional = nextChar();
+            while (optional.isPresent() && Character.isDigit(optional.get())) {
+                s.append(optional.get());
+                optional = nextChar();
+            }
+        }
+        return Optional.of(makeNumber(s.toString()));
     }
 
     private boolean isSpace(Character c) {
